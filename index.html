@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Preview permanent roofline lighting on your own home. Upload one photo, compare daytime and nighttime mockups, and download your favorite. No account required.">
+  <!-- Deploy on the same origin as this API. Never insert an OpenAI key here. -->
+  <meta name="govee-api-base" content="/api/govee">
+  <title>Afterglow — Your home, in a new light</title>
+  <style>
+    :root{--bg:#0c1118;--panel:#131b25;--panel2:#192330;--line:#2a3543;--text:#f2f4f6;--muted:#a5b1c0;--green:#c7f6b0;--green-ink:#172815;--amber:#f5cf8b;--red:#ffb2b2;--radius:20px;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:var(--bg)}
+    *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.46}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--green);outline-offset:4px}button{color:inherit}a{color:var(--green)}[hidden]{display:none!important}svg{display:block}button svg{width:19px;height:19px;flex-shrink:0}button{border:0}p{line-height:1.6}h1,h2,h3,p{margin-top:0}h2{font-size:19px;letter-spacing:-.4px}h3{font-size:15px}.muted{color:var(--muted)}.small{font-size:12px}.mono{font-variant-numeric:tabular-nums}.eyebrow{font-size:11px;letter-spacing:2px;font-weight:700;text-transform:uppercase;color:var(--green)}
+    .shell{max-width:1420px;margin:auto;padding:0 44px}.topbar{height:91px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:20px}.brand{display:flex;align-items:center;gap:11px;color:var(--text);text-decoration:none;font-weight:700;font-size:23px;letter-spacing:-1px}.brandmark{width:34px;height:34px;background:var(--green);color:var(--green-ink);border-radius:10px;display:grid;place-items:center}.brandmark svg{width:24px;height:24px}.brand em{font-style:normal;font-weight:400;color:var(--muted)}.nav-right{display:flex;align-items:center;gap:25px}.nav-link{background:transparent;color:var(--muted);font-size:13px;padding:8px 0}.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:50px;padding:8px 12px;font-size:11px;color:#d7e4d8;white-space:nowrap}.dot{height:6px;width:6px;border-radius:50%;background:var(--green)}
+    .intro{display:flex;align-items:flex-end;justify-content:space-between;gap:25px;padding:43px 0 30px}.intro h1{font-size:clamp(32px,3.7vw,48px);line-height:1.12;font-weight:550;letter-spacing:-2px;margin:12px 0 13px}.intro h1 span{color:var(--green)}.intro p{font-size:14px;color:var(--muted);margin:0;max-width:600px}.steps{display:flex;gap:19px;padding-bottom:5px;white-space:nowrap;font-size:12px;color:var(--muted)}.steps span{display:flex;align-items:center;gap:7px}.steps b{display:grid;place-items:center;height:22px;width:22px;border:1px solid var(--line);border-radius:50%;color:var(--green);font-size:10px}
+    .notice{border:1px solid #605132;background:#231f18;color:#f6dfb4;padding:13px 17px;display:flex;align-items:center;justify-content:space-between;gap:15px;border-radius:12px;margin-bottom:20px;font-size:13px;line-height:1.5}.notice button{flex-shrink:0;background:transparent;text-decoration:underline;color:inherit;font-size:12px;padding:6px}.notice.error{border-color:#6d3e45;background:#291b23;color:#ffd0d0}.studio{display:grid;grid-template-columns:345px minmax(0,1fr);gap:22px;align-items:start}.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}.controls{padding:23px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.section-title h2{margin:0}.num{color:var(--muted);font-size:10px;letter-spacing:1px}.quota{padding:15px;background:#0e161f;border:1px solid var(--line);border-radius:12px;margin-bottom:24px}.quota-top{display:flex;align-items:center;justify-content:space-between;font-size:12px}.quota-top strong{font-weight:600}.quota-top span{color:var(--green);font-size:11px}.quota-bars{display:flex;gap:5px;margin:11px 0}.quota-bar{height:5px;border-radius:5px;background:#303c49;flex:1}.quota-bar.used{background:var(--green)}.quota-bar.reserved{background:repeating-linear-gradient(45deg,#71996c,#71996c 4px,#344c36 4px,#344c36 8px)}.quota p{font-size:11px;line-height:1.5;margin:0;color:var(--muted)}.quota-detail{margin-top:7px!important;color:#dbe6d9!important}
+    .dropzone{width:100%;min-height:162px;border:1px dashed #4c5d6b;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#101922;color:var(--text);padding:22px 12px;transition:background .2s,border-color .2s}.dropzone:hover,.dropzone.drag{border-color:var(--green);background:#19271f}.dropzone>svg{width:27px;height:27px;color:var(--green);margin-bottom:4px}.dropzone strong{font-size:13px;font-weight:550}.dropzone span{color:var(--muted);font-size:11px}.upload-hint{font-size:11px;color:var(--muted);line-height:1.6;margin:10px 0 22px}.photo-card{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px}.photo-card img{width:100%;height:150px;object-fit:contain;background:#0a1017;display:block}.photo-card footer{padding:10px;display:flex;justify-content:space-between;gap:8px;align-items:center}.photo-card footer div{min-width:0}.filename{font-size:11px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:175px}.icon-btn{display:grid;place-items:center;background:#263340;border:1px solid #435160;border-radius:7px;padding:6px}.icon-btn svg{width:14px;height:14px}.separator{border:0;border-top:1px solid var(--line);margin:22px 0}.palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.palette{position:relative}.palette input{position:absolute;opacity:0;width:1px;height:1px}.palette label{border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;gap:9px;padding:12px 10px;cursor:pointer;font-size:11px;min-height:44px}.palette input:checked+label{border-color:var(--green);background:#202e26;color:var(--green)}.palette input:focus-visible+label{outline:3px solid var(--green);outline-offset:3px}.swatch{width:19px;height:19px;border-radius:50%;border:1px solid #ffffff2e;flex-shrink:0}.rainbow{background:conic-gradient(#ffe9a3,#ff84b7,#b761ff,#4a88ff,#52dfdf,#8de78e,#ffe9a3)}.warm{background:#ffe0a0;box-shadow:0 0 9px #ffd57f30}.christmas{background:conic-gradient(#cf535d 0 33%,#f4eccd 33% 66%,#63b18c 66%)}.ocean{background:linear-gradient(135deg,#8cdcf4,#5b73df)}.pair-info{display:flex;gap:10px;padding:13px 0 4px;color:var(--muted);font-size:11px;line-height:1.6}.pair-info svg{width:17px;height:17px;color:var(--green);flex-shrink:0;margin-top:2px}.consent{display:flex;gap:9px;font-size:11px;line-height:1.6;color:var(--muted);margin:19px 0 14px}.consent input{accent-color:var(--green);width:15px;height:15px;margin-top:2px;flex-shrink:0}.primary{background:var(--green);color:var(--green-ink);border-radius:10px;display:flex;justify-content:center;align-items:center;gap:9px;min-height:49px;font-size:13px;font-weight:700;padding:12px 17px;width:100%}.primary:not(:disabled):hover{background:#dafbca}.under-button{text-align:center;font-size:10px;line-height:1.6;color:var(--muted);margin:11px 0 0}.limit-note{color:var(--amber);font-size:12px;line-height:1.6;margin:12px 0 0}.privacy{display:flex;gap:7px;color:var(--muted);font-size:10px;line-height:1.6;margin:19px 0 0}.privacy svg{width:14px;height:14px;flex-shrink:0;margin-top:2px}.text-button{background:transparent;color:var(--muted);text-decoration:underline;padding:0;font-size:inherit}
+    .viewer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 23px;gap:12px;border-bottom:1px solid var(--line)}.viewer-title{display:flex;align-items:center;gap:9px}.viewer-title h2{font-size:14px;margin:0}.viewer-title .dot{background:#8a95a6}.viewer-title.live .dot{background:var(--green)}.tag{font-size:10px;color:var(--muted);border:1px solid var(--line);padding:5px 8px;border-radius:6px}.viewer-body{position:relative;min-height:439px;aspect-ratio:1.62;background:#101a27;overflow:hidden;display:flex;align-items:center;justify-content:center}.illustration{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.scene-caption{position:absolute;top:18px;left:20px;display:flex;gap:6px;align-items:center;background:#101921cc;border:1px solid #ffffff20;padding:7px 10px;border-radius:7px;color:#d7dfe8;font-size:10px}.scene-bottom{position:absolute;bottom:0;left:0;right:0;padding:60px 28px 24px;background:linear-gradient(transparent,#101823ee);pointer-events:none}.scene-bottom h3{font-size:23px;font-weight:500;letter-spacing:-.6px;margin:0 0 6px}.scene-bottom p{font-size:12px;color:#bdc8d5;margin:0;max-width:430px}.scene-legend{display:flex;gap:5px;position:absolute;right:20px;top:19px}.scene-legend i{height:6px;width:6px;border-radius:50%}.scene-source{position:absolute;right:20px;bottom:20px;font-size:9px;color:#acb6c5;z-index:1}.preview-image{width:100%;height:100%;object-fit:contain;position:absolute;inset:0;background:#0d141e}.preview-note{position:absolute;left:16px;bottom:16px;padding:8px 12px;background:#111b28e8;border:1px solid var(--line);border-radius:7px;font-size:11px;color:var(--muted)}
+    .progress-overlay{position:absolute;inset:0;background:#0c131dec;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:22px;text-align:center;z-index:5}.progress-circle{position:relative;width:126px;height:126px;margin-bottom:22px}.progress-circle svg{width:100%;height:100%;transform:rotate(-90deg)}.progress-circle circle{fill:none;stroke-width:5}.progress-circle .track{stroke:#2b3947}.progress-circle .fill{stroke:var(--green);stroke-linecap:round;stroke-dasharray:326.73;stroke-dashoffset:326.73;transition:stroke-dashoffset .8s ease}.progress-number{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:550;letter-spacing:-1px}.progress-number span{font-size:16px;color:var(--muted);margin:6px 0 0 2px}.progress-overlay h3{font-size:19px;font-weight:500;margin:0 0 8px}.progress-overlay p{font-size:12px;color:var(--muted);max-width:350px;margin:0 0 8px}.progress-overlay .estimate{color:var(--green);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}.stage-dots{display:flex;gap:8px;margin-top:14px}.stage-dots span{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}.stage-dots span:nth-child(2){animation-delay:.2s}.stage-dots span:nth-child(3){animation-delay:.4s}@keyframes pulse{0%,80%,100%{opacity:.25}40%{opacity:1}}
+    .viewer-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:17px 22px;border-top:1px solid var(--line)}.toolbar-text{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}.toolbar-text svg{width:15px;height:15px;color:var(--green)}.switcher{display:flex;background:#0d151e;border:1px solid var(--line);padding:3px;border-radius:8px;gap:3px}.switcher button{display:flex;align-items:center;gap:6px;background:transparent;padding:7px 12px;border-radius:5px;color:var(--muted);font-size:11px}.switcher button[aria-pressed="true"]{background:#2a3845;color:var(--text)}.switcher svg{width:13px;height:13px}.reassurance{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:18px}.reassurance article{padding:16px;border:1px solid var(--line);border-radius:12px;background:#111922}.reassurance svg{width:19px;height:19px;color:var(--green);margin-bottom:10px}.reassurance h3{font-size:11px;font-weight:600;margin-bottom:5px}.reassurance p{font-size:10px;color:var(--muted);line-height:1.65;margin:0}
+    .result-section{margin-top:21px;padding:23px}.result-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}.result-heading h2{margin:0 0 5px}.result-heading p{margin:0;font-size:11px;color:var(--muted)}select{max-width:150px;border:1px solid var(--line);background:#101923;color:var(--text);border-radius:8px;padding:8px;font-size:11px}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.result-card{background:#0d151f;border:1px solid var(--line);border-radius:12px;overflow:hidden}.result-card.selected{border-color:var(--green)}.select-result{display:block;width:100%;background:transparent;text-align:left;padding:0}.result-image-wrap{aspect-ratio:1.5;background:#0a111b;position:relative;display:grid;place-items:center}.result-image-wrap img{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}.result-placeholder{color:var(--muted);font-size:11px;padding:20px;text-align:center}.result-card footer{display:flex;align-items:center;justify-content:space-between;padding:12px;gap:8px}.result-name{font-size:12px;font-weight:550}.result-choice{font-size:10px;color:var(--muted)}.selected .result-choice{color:var(--green)}.result-actions{display:flex;gap:10px;margin-top:17px}.result-actions .primary{flex:1;min-height:43px;font-size:12px}.secondary{border:1px solid #455444;background:#1d2b23;color:var(--green);padding:10px 14px;border-radius:9px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:8px}.secondary svg{width:16px;height:16px}.partial-notice{font-size:12px;color:var(--amber);margin:13px 0}.compare-control{padding:14px 0 0;display:flex;align-items:center;gap:12px;font-size:11px;color:var(--muted)}.compare-control input{width:100%;accent-color:var(--green)}.compare-layer{position:absolute;inset:0;clip-path:inset(0 50% 0 0)}.compare-layer img{width:100%;height:100%;object-fit:contain;background:#0d141e}.compare-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:white;pointer-events:none}.compare-line::after{content:'↔';display:grid;place-items:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;background:white;color:#172019;border-radius:50%;font-size:16px}.compare-label{position:absolute;top:16px;background:#101921e0;padding:7px 10px;border:1px solid #ffffff26;border-radius:6px;font-size:10px}.compare-label.before{left:16px}.compare-label.after{right:16px}.bottom-notes{margin:26px 0 20px;padding:18px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:25px;font-size:10px;line-height:1.7;color:var(--muted)}.bottom-notes p{margin:0;max-width:770px}.footer-links{display:flex;gap:18px;align-items:start;white-space:nowrap}.footer-links button{background:transparent;color:var(--muted);padding:0;font-size:10px}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;padding:0}
+    dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:18px;width:min(780px,calc(100% - 28px));max-height:85vh;padding:0}dialog::backdrop{background:#000a;backdrop-filter:blur(5px)}.dialog-head{position:sticky;top:0;z-index:1;background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:19px 24px;border-bottom:1px solid var(--line)}.dialog-head h2{margin:0}.dialog-body{padding:24px;font-size:13px;line-height:1.8}.dialog-body h3{margin:23px 0 8px;color:var(--green)}.dialog-body h3:first-child{margin-top:0}.dialog-body p,.dialog-body ul,.dialog-body ol{color:#c3cdda}.dialog-body ul,.dialog-body ol{padding-left:21px}.dialog-body code{font-size:11px;background:#0c141d;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}.dialog-body pre{overflow:auto;padding:15px;border:1px solid var(--line);border-radius:9px;background:#0c141d;font-size:11px;white-space:pre-wrap;word-break:break-word}.dialog-body pre code{padding:0}.dialog-body a{overflow-wrap:anywhere}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);max-width:calc(100% - 30px);background:#243527;color:#e3f5dc;border:1px solid #5b7a52;border-radius:10px;padding:12px 19px;z-index:20;font-size:12px;box-shadow:0 8px 30px #0005}
+    @media(min-width:1450px){.viewer-body{min-height:480px}}@media(max-width:1100px){.shell{padding:0 25px}.studio{grid-template-columns:305px minmax(0,1fr);gap:16px}.controls{padding:19px}.steps{display:none}.viewer-body{min-height:380px}.scene-bottom h3{font-size:20px}.reassurance{gap:8px}.reassurance article{padding:12px}.toolbar-text{font-size:10px}.viewer-toolbar{padding:13px}.switcher button{padding:7px 9px}.scene-source{display:none}}@media(max-width:760px){.shell{padding:0 17px}.topbar{height:73px}.brand{font-size:20px}.brandmark{height:30px;width:30px}.nav-link{display:none}.nav-right{gap:10px}.badge{font-size:10px;padding:7px 10px}.intro{padding:29px 0 24px}.intro h1{font-size:37px;letter-spacing:-1.7px}.intro p{font-size:13px}.studio{grid-template-columns:1fr}.controls{padding:20px}.quota{margin-bottom:22px}.dropzone{min-height:140px}.viewer-body{min-height:310px;aspect-ratio:1.35}.viewer-head{padding:15px}.scene-bottom{padding:50px 20px 20px}.scene-bottom p{max-width:300px;font-size:11px}.reassurance h3{font-size:10px}.reassurance p{font-size:10px}.result-section{padding:16px}.result-actions{flex-direction:column}.bottom-notes{flex-direction:column;gap:12px}.notice{align-items:flex-start;font-size:12px}.notice button{font-size:11px}.toolbar-text{max-width:140px;line-height:1.5}.viewer-toolbar{gap:8px}.switcher button{font-size:10px;padding:7px 8px}.result-card footer{padding:10px;flex-wrap:wrap}.intro .eyebrow{font-size:10px}.dialog-body{padding:19px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+    .studio>*{min-width:0}fieldset{min-width:0}.palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.palette{min-width:0}.viewer-body{width:100%}
+    /* Atmosphere belongs to the illustration, never a filter over customer photos. */
+    .viewer{--period-accent:#c9bdff;transition:border-color .8s ease,box-shadow .8s ease}.viewer[data-period="day"]{--period-accent:#ffdc98}.viewer:focus-within{border-color:#526479}.viewer-body{isolation:isolate}.illustration{--sky-top:#0d1834;--sky-mid:#263d60;--sky-low:#777782;--ground-top:#243d36;--ground-low:#101d27;--wall-top:#929a98;--wall-low:#59666b;--wall2-top:#92998c;--wall2-low:#536163;--roof-top:#344350;--roof-low:#1a2937;--glass-top:#f8d395;--glass-low:#b29463;--trees:#172e37;--shrubs:#294a3b;--tree-stroke:#1d3b39;--drive:#8b9598;--garage:#6e7d78;--foreground:#101c2a}
+    .viewer[data-period="day"] .illustration{--sky-top:#75bce5;--sky-mid:#b9dff0;--sky-low:#f4e5ca;--ground-top:#7d9c67;--ground-low:#4b734d;--wall-top:#ede7d8;--wall-low:#c2bdae;--wall2-top:#e1decb;--wall2-low:#b5baa5;--roof-top:#66717a;--roof-low:#455360;--glass-top:#a5ccdc;--glass-low:#6e9aaa;--trees:#60806c;--shrubs:#446c44;--tree-stroke:#426a51;--drive:#b9b6ab;--garage:#d0cdbf;--foreground:#56764e}
+    .illustration stop{transition:stop-color 1.25s ease}.illustration .scene-trees,.illustration .scene-shrubs,.illustration .scene-drive,.illustration .scene-garage,.illustration .scene-foreground{transition:fill 1.25s ease}.illustration .scene-tree-lines{transition:stroke 1.25s ease}.scene-trees{fill:var(--trees)}.scene-shrubs{fill:var(--shrubs)}.scene-tree-lines{stroke:var(--tree-stroke)}.scene-drive{fill:var(--drive)}.scene-garage{fill:var(--garage)}.scene-foreground{fill:var(--foreground)}
+    #sample-cones,#sample-fixtures{opacity:1;transition:opacity 1.3s ease}.viewer[data-period="day"] #sample-cones{opacity:.12}.viewer[data-period="day"] #sample-fixtures{opacity:.55}.celestial{transform-box:fill-box;transform-origin:center;transition:opacity 1s ease,transform 1.3s cubic-bezier(.22,1,.36,1)}.scene-sun{opacity:0;transform:translateY(65px) scale(.65)}.viewer[data-period="day"] .scene-sun{opacity:1;transform:translateY(0) scale(1)}.scene-moon{opacity:1;transform:translateY(0) rotate(0)}.viewer[data-period="day"] .scene-moon{opacity:0;transform:translateY(65px) rotate(-35deg)}.scene-stars{opacity:.8;transition:opacity 1s ease}.viewer[data-period="day"] .scene-stars{opacity:0}.scene-clouds{opacity:.08;transition:opacity 1.3s ease}.viewer[data-period="day"] .scene-clouds{opacity:.6}
+    .period-badge{position:absolute;right:18px;top:17px;display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid #ffffff26;border-radius:12px;background:#101a2cba;backdrop-filter:blur(12px);pointer-events:none;color:var(--period-accent);z-index:2;transition:color .8s ease,background .8s ease}.period-orb{width:29px;height:29px;display:grid;place-items:center;position:relative}.period-orb svg{position:absolute;width:23px;height:23px;filter:drop-shadow(0 0 7px #c2b0ff70);transition:transform .85s cubic-bezier(.22,1,.36,1),opacity .6s ease}.period-orb .period-sun{opacity:0;transform:rotate(-100deg) scale(.3)}.viewer[data-period="day"] .period-sun{opacity:1;transform:rotate(0) scale(1);filter:drop-shadow(0 0 7px #ffd57c70)}.viewer[data-period="day"] .period-moon{opacity:0;transform:rotate(100deg) scale(.3)}.period-badge strong{display:block;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase}.period-badge small{display:block;margin-top:3px;font-size:9px;color:#d0d8e3}.scene-legend{top:83px;right:25px}.scene-caption{max-width:calc(100% - 180px);line-height:1.5}.scene-caption .dot{flex-shrink:0}.scene-bottom{padding-top:70px}.scene-bottom h3,.scene-bottom p{transition:color .6s ease}.scene-source{bottom:10px;font-size:8px}.viewer[data-period="day"] .scene-bottom{background:linear-gradient(transparent,#152c30ed)}
+    .switcher{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(3,1fr);gap:0;--view-index:2}.switcher::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/3);border-radius:6px;background:#293547;box-shadow:inset 0 0 0 1px #b4a5ff35,0 2px 7px #0003;transform:translateX(calc(var(--view-index)*100%));transition:transform .55s cubic-bezier(.22,1,.36,1),background .6s ease,box-shadow .6s ease;z-index:-1}.viewer[data-period="day"] .switcher::before{background:#3a352b;box-shadow:inset 0 0 0 1px #f5cf8b50,0 2px 7px #0003}.switcher button{justify-content:center;transition:color .3s ease;min-height:33px}.switcher button[aria-pressed="true"]{background:transparent;color:var(--period-accent)}.switcher button:not(:disabled):hover{color:#fff}.switcher button[aria-pressed="true"] svg{animation:icon-arrive .6s ease both}.result-card{transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}.result-card:has(button:not(:disabled)):hover{transform:translateY(-3px);border-color:#849e91}.result-card.selected{box-shadow:0 0 0 1px #c7f6b024,0 6px 20px #0002}.outgoing-image{pointer-events:none}.preview-image{image-rendering:auto}.viewer-body.is-revealing .preview-image{will-change:clip-path}.compare-layer,.compare-line,.compare-label,.preview-note{z-index:1}
+    @keyframes icon-arrive{from{transform:rotate(-35deg) scale(.65)}to{transform:rotate(0) scale(1)}}
+    @media(max-width:760px){.period-badge{right:12px;top:13px;padding:8px;gap:5px}.period-badge strong{font-size:9px}.period-badge small{font-size:8px}.period-orb{width:24px;height:24px}.period-orb svg{width:20px;height:20px}.scene-caption{left:12px;top:13px;max-width:calc(100% - 146px);font-size:9px;padding:6px 8px}.scene-legend{top:72px;right:20px}.viewer-toolbar{flex-wrap:wrap}.switcher{margin-left:auto}.scene-bottom h3{font-size:20px}.scene-bottom p{max-width:340px}}
+    @media(max-width:380px){.topbar{gap:8px}.brand{gap:8px}.badge{font-size:9px;padding:7px 8px}.viewer-head{gap:8px;padding:14px 12px}.viewer-title{gap:6px}.viewer-title h2{font-size:12px}.viewer-head .tag{font-size:8px;padding:5px 6px}.scene-bottom h3{font-size:18px}}
+    @media(prefers-reduced-motion:reduce){.illustration *, .viewer *, .viewer::before{animation:none!important;transition:none!important}}
+    .switcher{grid-template-columns:repeat(2,1fr)}.switcher::before{width:calc((100% - 6px)/2)}[data-view="day"],#day-card,#download-both{display:none!important}.result-grid{grid-template-columns:1fr}
+    .progress-circle svg{animation:progress-spin 1.5s linear infinite}.progress-circle .fill{stroke-dasharray:82 245;stroke-dashoffset:0!important}.progress-number{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--green)}@keyframes progress-spin{to{transform:rotate(270deg)}}@media(prefers-reduced-motion:reduce){.progress-circle svg{animation:none}}
+  </style>
+</head>
+<body>
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m20 2 .6 1.4L22 4l-1.4.6L20 6l-.6-1.4L18 4l1.4-.6L20 2Z" fill="currentColor"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1v2m0 18v2M1 12h2m18 0h2M4.2 4.2l1.4 1.4m12.8 12.8 1.4 1.4M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.8 14A9 9 0 0 1 10 3.2 9 9 0 1 0 20.8 14Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m8 12 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-house" viewBox="0 0 24 24"><path d="m2 11 10-8 10 8M5 9v12h14V9M10 21v-7h4v7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#main" aria-label="Afterglow home"><span class="brandmark"><svg aria-hidden="true"><use href="#i-spark"/></svg></span>afterglow<em>.</em></a>
+      <div class="nav-right"><button class="nav-link" data-open="how-dialog">How it works</button><span class="badge"><span class="dot"></span>No account. Just your home.</span></div>
+    </header>
+    <main id="main">
+      <section class="intro" aria-labelledby="page-title">
+        <div><div class="eyebrow">Permanent lighting · Personal preview</div><h1>Your home, in a <span>new light.</span></h1><p>Upload one photo and see your roofline with Govee-style lighting after dark. Compare the result with your original.</p></div>
+        <div class="steps" aria-label="Three simple steps"><span><b>01</b>Upload</span><span><b>02</b>Transform</span><span><b>03</b>Download</span></div>
+      </section>
+      <div class="notice" id="connection-notice" role="status"><span id="connection-message">Connecting securely and checking your free preview allowance…</span><button id="reconnect" hidden>Reconnect</button></div>
+      <div class="notice error" id="error-notice" role="alert" hidden><span id="error-message"></span><button id="dismiss-error" aria-label="Dismiss error">Dismiss</button></div>
+
+      <div class="studio">
+        <aside class="panel controls" aria-label="Create your lighting mockup">
+          <div class="quota" aria-label="Your visitor allowance" aria-live="polite">
+            <div class="quota-top"><strong>Your free previews</strong><span id="quota-title">Checking allowance</span></div>
+            <div class="quota-bars" aria-hidden="true"><span class="quota-bar" id="quota-bar-1"></span><span class="quota-bar" id="quota-bar-2"></span></div>
+            <p id="quota-count" class="mono">— / 2 requests used · — / 4 images created</p>
+            <p class="quota-detail" id="quota-detail">Each request creates a daytime + nighttime pair.</p>
+          </div>
+          <div class="section-title"><h2>Your house photo</h2><span class="num">STEP 01</span></div>
+          <input class="sr-only" type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" aria-label="Upload a house photo" tabindex="-1">
+          <button class="dropzone" id="dropzone" type="button"><svg aria-hidden="true"><use href="#i-upload"/></svg><strong>Drop your house photo here</strong><span>or click to browse</span><span>JPG, PNG, WebP · up to 10 MB</span></button>
+          <div class="photo-card" id="photo-card" hidden><img id="photo-thumbnail" alt="Your uploaded house"><footer><div><strong class="filename" id="photo-filename"></strong><span class="small muted" id="photo-dimensions"></span></div><button class="icon-btn" id="remove-photo" aria-label="Remove uploaded photo"><svg aria-hidden="true"><use href="#i-close"/></svg></button></footer></div>
+          <p class="upload-hint" id="upload-hint">A clear photo with the full roofline works best. Daytime photos are welcome.</p>
+          <hr class="separator">
+          <div class="pair-info"><svg aria-hidden="true"><use href="#i-moon"/></svg><span>One request creates one nighttime lighting image. Your original photo remains available for comparison.</span></div>
+          <p class="consent"><span>By generating, you confirm you can use this photo and agree to send it to the image-processing service. <button type="button" class="text-button" data-open="privacy-dialog">Photo privacy</button></span></p>
+          <button class="primary" id="generate" disabled><svg aria-hidden="true"><use href="#i-spark"/></svg><span id="generate-label">Generate night view</span></button>
+          <p class="under-button" id="generate-hint">Upload one photo to get started · no sign-up</p>
+          <p class="limit-note" id="limit-note" hidden>Today's test limit is used. Reconnect after midnight UTC to refresh your allowance. Your results remain available while the server runs.</p>
+          <div class="privacy"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>No account or payment required. Allowance is linked to this browser, not a verified person.</span></div>
+        </aside>
+
+        <div>
+          <section class="panel viewer" data-period="night" aria-labelledby="viewer-heading">
+            <div class="viewer-head"><div class="viewer-title" id="viewer-title"><span class="dot"></span><h2 id="viewer-heading">Your lighting studio</h2></div><span class="tag" id="viewer-tag">DAY + NIGHT</span></div>
+            <div class="viewer-body" id="viewer-body">
+              <!-- Original vector artwork. This is a labeled illustration, never an AI result. -->
+              <svg id="sample-scene" class="illustration" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated example of a house with scalloped multicolor roofline lighting at blue hour">
+                <defs>
+                  <linearGradient id="sky" x2="0" y2="1"><stop style="stop-color:var(--sky-top)"/><stop offset=".65" style="stop-color:var(--sky-mid)"/><stop offset="1" style="stop-color:var(--sky-low)"/></linearGradient>
+                  <linearGradient id="ground" x2="0" y2="1"><stop style="stop-color:var(--ground-top)"/><stop offset="1" style="stop-color:var(--ground-low)"/></linearGradient>
+                  <linearGradient id="wall" x2="0" y2="1"><stop style="stop-color:var(--wall-top)"/><stop offset="1" style="stop-color:var(--wall-low)"/></linearGradient>
+                  <linearGradient id="wall2" x2="0" y2="1"><stop style="stop-color:var(--wall2-top)"/><stop offset="1" style="stop-color:var(--wall2-low)"/></linearGradient>
+                  <linearGradient id="roof" x2="0" y2="1"><stop style="stop-color:var(--roof-top)"/><stop offset="1" style="stop-color:var(--roof-low)"/></linearGradient>
+                  <linearGradient id="glass" x2="0" y2="1"><stop style="stop-color:var(--glass-top)"/><stop offset="1" style="stop-color:var(--glass-low)"/></linearGradient>
+                  <linearGradient id="cone" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".8"/><stop offset=".65" stop-color="currentColor" stop-opacity=".3"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>
+                  <pattern id="siding" width="8" height="13" patternUnits="userSpaceOnUse"><path d="M0 12.5h8" stroke="#111e25" stroke-opacity=".22"/></pattern>
+                  <pattern id="shingles" width="28" height="14" patternUnits="userSpaceOnUse"><path d="M0 13.5h28M14 0v13" stroke="#8a979a" stroke-opacity=".11"/></pattern>
+                  <filter id="soft"><feGaussianBlur stdDeviation="2"/></filter>
+                  <clipPath id="house-clip"><path d="M170 342 325 199 474 342v153H170Zm320-44 116-118 124 118v197H490ZM460 365h370v130H460Z"/></clipPath>
+                </defs>
+                <path fill="url(#sky)" d="M0 0h1000v640H0z"/>
+                <g class="scene-stars" fill="#e5eaff" aria-hidden="true"><circle cx="113" cy="91" r="1.7"/><circle cx="251" cy="63" r="1.2"/><circle cx="393" cy="105" r="1.6"/><circle cx="532" cy="50" r="1.3"/><circle cx="675" cy="83" r="1.8"/><circle cx="776" cy="46" r="1.2"/><circle cx="923" cy="167" r="1.5"/><circle cx="71" cy="203" r="1.2"/></g>
+                <g class="celestial scene-sun" aria-hidden="true"><circle cx="837" cy="133" r="53" fill="#fff0bb" opacity=".1"/><circle cx="837" cy="133" r="39" fill="#fff0bb" opacity=".2"/><circle cx="837" cy="133" r="27" fill="#fff3c9"/></g>
+                <g class="celestial scene-moon" aria-hidden="true"><circle cx="837" cy="133" r="42" fill="#c9d7ff" opacity=".05"/><path d="M848 105a28 28 0 1 0 14 41 25 25 0 0 1-14-41Z" fill="#e0e9ff"/></g>
+                <g class="scene-clouds" fill="none" stroke="#fff" stroke-linecap="round" aria-hidden="true"><path d="M112 158h115m-94-12h65" stroke-width="13"/><path d="M664 208h102m-76-12h43" stroke-width="10"/></g>
+                <path class="scene-trees" d="M0 336c42-70 58-25 90-70 39-54 59-10 87 34 40-35 71-6 94 46l440 5c27-50 49-89 73-68 36-80 76-48 95 18 41-72 81-15 121-9v244H0Z"/>
+                <path d="M0 484c230-35 360-21 500-13 180 10 330-10 500-2v171H0Z" fill="url(#ground)"/><path class="scene-drive" d="m485 489 264-3 154 154H308Z" opacity=".7"/>
+                <path d="M170 342 325 199 474 342v153H170Z" fill="url(#wall)"/><path d="M490 298 606 180 730 298v197H490Z" fill="url(#wall2)"/><path d="M460 365h370v130H460Z" fill="url(#wall)"/>
+                <path d="M170 342 325 199 474 342v153H170Zm320-44 116-118 124 118v197H490ZM460 365h370v130H460Z" fill="url(#siding)"/>
+                <path d="m140 345 185-175 185 175-20 10-165-151-165 151Z" fill="url(#roof)"/><path d="m145 340 180-168 180 168-14 8-166-151-166 151Z" fill="url(#shingles)"/>
+                <path d="m457 303 149-151 154 151-20 10-134-131-130 131Z" fill="url(#roof)"/><path d="m465 299 141-144 145 144-13 5-132-127-129 127Z" fill="url(#shingles)"/>
+                <path d="m455 358 49-51h277l61 51-11 15H463Z" fill="url(#roof)"/><path d="m460 355 45-45h274l56 45Z" fill="url(#shingles)"/>
+                <path d="m159 351 166-153 166 153m-16-42 131-131 134 131M462 369h370" fill="none" stroke="#b0aca0" stroke-width="7"/>
+                <g clip-path="url(#house-clip)" filter="url(#soft)" id="sample-cones"></g>
+                <g stroke="#28373b" stroke-width="7"><path d="M212 361h67v96h-67Z" fill="url(#glass)"/><path d="M350 361h67v96h-67Z" fill="url(#glass)"/><path d="M573 287h68v71h-68Z" fill="url(#glass)"/></g>
+                <g stroke="#5a5d51" stroke-width="3"><path d="M245 364v90m-30-47h60m108-43v90m-30-47h61m193-117v65m-30-34h60"/></g>
+                <path d="M296 389h44v106h-44Z" fill="#1d2e35" stroke="#929185" stroke-width="5"/><path d="M307 401h22v45h-22Z" fill="#bfa16d" opacity=".55"/><circle cx="332" cy="459" r="2" fill="#ddc98d"/>
+                <path class="scene-garage" d="M506 391h129v104H506Zm145 0h129v104H651Z" stroke="#959a8c" stroke-width="4"/>
+                <g stroke="#2c3c3e" stroke-width="2" opacity=".7"><path d="M508 422h126m-126 23h126m-126 23h126m20-46h125m-125 23h125m-125 23h125"/></g>
+                <g fill="#bbad83" opacity=".6"><path d="M517 401h20v12h-20Zm29 0h20v12h-20Zm29 0h20v12h-20Zm29 0h20v12h-20Zm58 0h20v12h-20Zm29 0h20v12h-20Zm29 0h20v12h-20Zm29 0h20v12h-20Z"/></g>
+                <path d="M280 497h74v8h-74Zm-10 9h94v8h-94Z" fill="#7a8175"/><path class="scene-shrubs" d="M144 500c-7-30 11-46 30-35 1-28 31-28 43-5 18-14 36 1 39 21 22-18 42 4 35 22Zm612 1c-3-24 14-41 30-30 6-26 30-24 35-3 18-14 41 6 36 31Z"/>
+                <path class="scene-tree-lines" d="M88 490V330m-32 63 32-29 29 25m-52-37 23-33 22 30m-35-27 13-42 15 39" fill="none" stroke-width="24" stroke-linecap="round"/><path class="scene-tree-lines" d="M908 499V310m-34 60 34-38 35 42m-54-57 19-46 23 46" fill="none" stroke-width="30" stroke-linecap="round"/>
+                <path class="scene-foreground" d="M0 552c240-29 427-21 1000-11v99H0Z" opacity=".5"/><g id="sample-fixtures"></g>
+              </svg>
+              <div id="sample-caption" class="scene-caption"><span class="dot"></span>Illustrated nighttime example</div>
+              <div id="scene-legend" class="scene-legend" aria-hidden="true"><i style="background:#ffe397"></i><i style="background:#f78fbe"></i><i style="background:#b09aff"></i><i style="background:#83d7ef"></i><i style="background:#b6e89e"></i></div>
+              <div id="scene-bottom" class="scene-bottom"><h3>When the sun sets, the magic begins.</h3><p>Upload your home to preview a colorful nighttime glow.</p></div>
+              <div id="scene-source" class="scene-source">Illustration · not an AI-generated preview</div>
+              <img id="outgoing-image" class="preview-image outgoing-image" alt="" aria-hidden="true" hidden>
+              <img id="main-image" class="preview-image" alt="" hidden>
+              <div id="period-badge" class="period-badge" aria-hidden="true"><span class="period-orb"><svg class="period-sun"><use href="#i-sun"/></svg><svg class="period-moon"><use href="#i-moon"/></svg></span><span><strong id="period-name">After dark</strong><small id="period-detail">Let your home glow</small></span></div>
+              <div id="compare-layer" class="compare-layer" hidden><img id="compare-image" alt="Original house photo for comparison"></div>
+              <div id="compare-line" class="compare-line" hidden></div>
+              <span id="before-label" class="compare-label before" hidden>Original</span><span id="after-label" class="compare-label after" hidden>Your preview</span>
+              <div id="preview-note" class="preview-note" hidden>Original photo · ready for your transformation</div>
+              <div class="progress-overlay" id="progress-overlay" hidden>
+                <div class="progress-circle" role="progressbar" aria-label="Creating your preview; completion time is unknown" id="progressbar"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52"/><circle class="fill" id="progress-fill" cx="60" cy="60" r="52"/></svg><div class="progress-number"><b id="progress-number">Working</b></div></div>
+                <p class="estimate">Processing · time varies</p><h3 id="progress-heading">Preparing your photo</h3><p id="progress-detail">We’re creating your nighttime lighting preview.</p><p id="elapsed" class="mono">0:00 elapsed</p><div class="stage-dots" aria-hidden="true"><span></span><span></span><span></span></div><button class="secondary" id="stop-generation" type="button" style="margin-top:22px" hidden>Stop generation</button>
+              </div>
+            </div>
+            <div class="viewer-toolbar"><span class="toolbar-text" id="toolbar-text"><svg aria-hidden="true"><use href="#i-house"/></svg><span>Try a little day-to-night magic</span></span><div class="switcher" role="group" aria-label="View image"><button data-view="original" aria-pressed="false" disabled>Original</button><button data-view="day" aria-pressed="false"><svg aria-hidden="true"><use href="#i-sun"/></svg>Day</button><button data-view="night" aria-pressed="true"><svg aria-hidden="true"><use href="#i-moon"/></svg>Night</button></div></div>
+          </section>
+          <div class="compare-control" id="compare-control" hidden><label for="compare-range">Original</label><input type="range" id="compare-range" min="0" max="100" value="50" aria-label="Reveal original photo versus lighting preview"><span>Preview</span><button class="text-button" id="close-compare">Close</button></div>
+
+          <section class="panel result-section" id="results" aria-labelledby="results-heading" hidden>
+            <div class="result-heading"><div><h2 id="results-heading">Find your favorite.</h2><p>Choose your look. Download it. Keep both if you love both.</p></div><label class="sr-only" for="job-select">Choose generation request</label><select id="job-select" aria-label="Choose generation request"></select></div>
+            <div class="result-grid">
+              <article class="result-card" id="day-card"><button class="select-result" data-result="day" aria-pressed="false" disabled><div class="result-image-wrap"><img id="day-result" alt="Daytime Govee-style lighting mockup" hidden><span class="result-placeholder" id="day-placeholder">Daytime preview pending</span></div><footer><span class="result-name">Daytime</span><span class="result-choice" id="day-choice">Select this look</span></footer></button></article>
+              <article class="result-card" id="night-card"><button class="select-result" data-result="night" aria-pressed="false" disabled><div class="result-image-wrap"><img id="night-result" alt="Nighttime Govee-style lighting mockup" hidden><span class="result-placeholder" id="night-placeholder">Nighttime preview pending</span></div><footer><span class="result-name">Nighttime</span><span class="result-choice" id="night-choice">Select this look</span></footer></button></article>
+            </div>
+            <p class="partial-notice" id="partial-notice" hidden>One version is ready. The other needs recovery. Your ready image is safe; retrying the missing version does not use another request.</p>
+            <div class="result-actions"><button class="primary" id="download-selected" disabled><svg aria-hidden="true"><use href="#i-download"/></svg><span id="download-label">Download selected</span></button><button class="secondary" id="download-both" disabled>Download both (.zip)</button><button class="secondary" id="retry-missing" hidden>Retry missing image</button></div>
+            <button class="text-button small" id="compare-button" style="margin-top:16px" disabled>Compare selected image with original</button>
+          </section>
+
+          <div class="reassurance"><article><svg aria-hidden="true"><use href="#i-house"/></svg><h3>Your architecture comes first</h3><p>Edits are instructed to retain your home’s rooflines, windows, and surroundings.</p></article><article><svg aria-hidden="true"><use href="#i-spark"/></svg><h3>Scallops, not glowing strips</h3><p>Concealed fixtures and overlapping downward wall-wash cones.</p></article><article><svg aria-hidden="true"><use href="#i-download"/></svg><h3>Two views. Your choice.</h3><p>Compare day and night, then download your favorite—or both.</p></article></div>
+        </div>
+      </div>
+      <footer class="bottom-notes"><p>AI visualization, not an installation specification or an exact prediction of brightness. Architectural details may vary; inspect results before use. Afterglow is an independent concept, not affiliated with or endorsed by Govee.</p><div class="footer-links"><button data-open="privacy-dialog">Privacy & limits</button><button data-open="setup-dialog">Integration & build plan</button></div></footer>
+    </main>
+  </div>
+  <div class="sr-only" id="live-status" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <dialog id="how-dialog" aria-labelledby="how-title"><div class="dialog-head"><h2 id="how-title">Your home, previewed in three steps.</h2><button class="icon-btn" data-close aria-label="Close instructions"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><div class="dialog-body"><h3>01 · Upload a clear house photo</h3><p>Keep the full roofline in frame. Avoid panoramas, heavy obstructions, screenshots, and very dark photos. One photo is processed at a time.</p><h3>02 · Generate a day & night pair</h3><p>Choose an optional color preset and generate. The same original and roofline plan guide both edits. Daytime wall-wash is intentionally subtler. The circular percentage is an estimate based on processing stages, not an exact measure of the AI’s internal work.</p><h3>03 · Compare and download</h3><p>Select your preferred look, compare with your original, or download both versions. Each browser visitor receives two requests, creating up to four images in total. Downloads do not use your allowance.</p><h3>About accuracy</h3><p>The model is instructed to preserve building geometry, text, vehicles, and landscaping, but exact preservation is not guaranteed. Complex rooflines may require a corrected installation guide and another edit. This interface does not claim to perform precise roofline detection itself.</p></div></dialog>
+
+  <dialog id="privacy-dialog" aria-labelledby="privacy-title"><div class="dialog-head"><h2 id="privacy-title">Photo privacy · local testing</h2><button class="icon-btn" data-close aria-label="Close privacy information"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><div class="dialog-body"><h3>Your photo</h3><p>The browser previews and re-encodes your photo locally to remove embedded metadata. When you click Generate, the photo is sent to Vercel AI Gateway and its model provider. Visible addresses and other details remain in the image; only upload photos you are authorized to use.</p><h3>Local test session</h3><p>Photos, generated images, jobs and the test allowance are held in the local server's memory and disappear when it restarts. Restarting also resets the allowance. A browser cookie identifies the local session. The test allowance is not a billing or spending limit; failed attempts and retries may still incur provider charges.</p><h3>Before going live</h3><p>The local test backend is not suitable for public deployment. The operator must implement and disclose the actual processor, storage, retention and deletion policy, access controls and contact details.</p></div></dialog>
+
+  <dialog id="setup-dialog" aria-labelledby="setup-title"><div class="dialog-head"><h2 id="setup-title">Integration & full build plan</h2><button class="icon-btn" data-close aria-label="Close integration plan"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><div class="dialog-body">
+    <h3>0 · Local testing</h3><p><strong>A local-only test backend is included.</strong> Follow <code>SETUP.md</code> to add a Vercel AI Gateway key to <code>.env.local</code>, start the server and visit <code>http://127.0.0.1:8000</code>. Never put a key in this page. The local backend keeps photos, jobs and limits in memory only; restarting removes them and resets the allowance. It is not safe for public deployment.</p><p>Each day/night pair attempts two paid image edits; retries can also cost money. Image editing and output quality need verification with a real test. The sections below describe a proposed production build, not guarantees of the local test server.</p><p><strong>Accuracy limits:</strong> this page does not detect rooflines or verify architectural preservation. Generated results must be inspected; exact geometry and lighting coverage cannot be guaranteed by a prompt alone.</p>
+    <h3>1 · What this one file does</h3><p>Responsive HTML, CSS, and JavaScript; no CDN, fonts, libraries, or build step. Includes validated uploads, metadata removal, original preview, palette selection, anonymous-quota display, event-driven estimated progress, job recovery, two result cards, comparison slider, and downloads. The house artwork is an illustration, not a generated sample.</p>
+    <p><strong>Real AI and trustworthy limits require a backend.</strong> This file deliberately contains no API key, fake quota, invented AI output, or localStorage-based security. Opening it directly previews the interface; host it over HTTPS with the backend to generate.</p>
+    <h3>2 · Deployment and embedding</h3><p>Serve this page on the same HTTPS origin as <code>/api/govee</code>. Change <code>meta[name="govee-api-base"]</code> if the API path differs. Embed with an iframe where desired:</p><pre><code>&lt;iframe src="https://your-site.example/lighting/"
+  title="House lighting preview"
+  style="width:100%;height:1250px;border:0"
+  loading="lazy"&gt;&lt;/iframe&gt;</code></pre><p>For unrelated embedding domains, use a same-site reverse proxy or a tested partitioned-cookie approach; third-party cookies can be blocked. Do not weaken cookie security or replace limits with local storage. Set a restrictive <code>frame-ancestors</code> allowlist for approved sites. For CSP, hash this file’s inline script/style or issue a nonce; allow <code>blob:</code> images. Avoid third-party analytics on uploads.</p>
+    <h3>3 · Backend contract</h3><p>All responses are JSON except downloads. Every route is scoped to the anonymous cookie owner. Require HTTPS, <code>Cache-Control: no-store</code>, same-origin requests, and an origin check. Session establishment uses GET; all mutations require the returned CSRF token.</p>
+    <pre><code>GET /api/govee/session
+{
+  "csrfToken": "opaque-session-csrf-token",
+  "quota": {
+    "requestLimit": 2, "imageLimit": 4,
+    "requestsUsed": 0, "requestsReserved": 0,
+    "imagesUsed": 0, "imagesReserved": 0
+  },
+  "jobs": []
+}
+
+POST /api/govee/jobs
+  Cookie: anonymous visitor session
+  X-CSRF-Token: token from session
+  Idempotency-Key: client-generated UUID
+  multipart fields: image, palette
+  palettes: rainbow | warm | christmas | ocean
+  response (202): { "job": Job, "quota": Quota }
+
+GET /api/govee/jobs/:id
+  response: { "job": Job, "quota": Quota }
+
+POST /api/govee/jobs/:id/retry
+  X-CSRF-Token + Idempotency-Key
+  Retry only the missing output within the original reservation.
+  response (202): { "job": Job, "quota": Quota }
+
+GET /api/govee/jobs/:id/download?variant=day|night|both
+  PNG for one; ZIP for both. Attachment disposition.
+  Only the cookie owner can download. No public asset bucket.
+
+Job = {
+  "id": "opaque-job-id",
+  "status": "queued",
+  "createdAt": "2026-10-23T12:00:00Z",
+  "originalUrl": "/api/govee/assets/opaque-original-id",
+  "outputs": [
+    { "variant": "day", "url": "/api/govee/assets/opaque-day-id" }
+  ],
+  "canRetry": false
+}
+Statuses: queued, analyzing, generating, validating,
+          completed, partial, failed
+completed requires both day and night outputs.
+Asset URLs must be same-origin under the API path.
+Quota = quota object shown above.
+Errors: { "error": { "code": "...", "message": "..." } }
+429: quota/rate limit; 413: upload too large; 403: CSRF/session.
+session.jobs contains all retained jobs and active reservations.</code></pre>
+    <h3>4 · Anonymous limit enforcement</h3><ol><li>Create a cryptographically random opaque visitor ID in an <code>HttpOnly; Secure; SameSite=Lax; Path=/</code> first-party cookie. Match its expiry to the disclosed allowance policy. Store a hashed identifier server-side.</li><li>Atomically reserve one request and two image slots; reject concurrent or over-limit jobs. The browser counters are display-only. Bind idempotency keys to owner and operation with a unique database constraint. Reject reuse with a different payload.</li><li>Commit the request when its first image succeeds; commit image counts individually. Keep the missing image reservation on partial completion. On complete failure release all unused reservations. Enforce at most two successful request records and four output records per visitor.</li><li>Recover stale jobs using leases and reconciliation. A lost HTTP response must not trigger duplicate inference. Workers retry only missing variants; persist outputs before updating counters. Bound retries and total spend.</li><li>Add layered IP/network rate limits, request-size limits, global daily spend caps, and optional risk-based anti-bot checks. Do not block whole households solely for sharing an IP.</li></ol>
+    <h3>5 · Accurate image-generation pipeline</h3><ol><li>Revalidate bytes, MIME, dimensions, and upload limits on the server; decode and re-encode safely. Client validation is not a security boundary.</li><li>Analyze the original with a separately evaluated vision model. Propose visible eaves, sloping gables, canopy undersides, receiving surfaces, and occlusions. Use one shared installation plan for the pair. Automatic geometry is approximate.</li><li>Call <code>/v1/images/edits</code> twice, once per variant, always from the same original—not from the other generated output. Use explicit <code>model: gpt-image-1.5</code>, <code>input_fidelity: high</code>, <code>quality: high</code>, <code>n: 1</code>, and <code>output_format: png</code>. Keep OpenAI credentials in server environment secrets.</li><li>Choose <code>1536x1024</code>, <code>1024x1536</code>, or <code>1024x1024</code>; pad without stretching/cropping the building, then unpad consistently. Return the original and results with matching framing for comparison. These are not native 4K outputs.</li><li>Supply a licensed lighting reference as a secondary image, if available. It guides scallop appearance only, never house geometry. No reference photo is bundled in this file.</li><li>Check architecture, signage, left/right coverage, cone shape, occlusion, and exposure. Automated checks can miss errors. Flag failures and retry only the affected variant within the original job. Do not silently count rejected images as delivered.</li><li>For strict geometry preservation, add a non-generative, original-photo grading and masked lighting-compositing mode. AI masks are guidance, not pixel-perfect locks. An optional roofline-correction editor is a later enhancement, not implemented in this file.</li></ol>
+    <h3>6 · Server-side prompt template</h3><pre id="prompt-template"><code>REQUESTED VARIANT: {day or night; selected by the server for this edit}.
+
+Edit the supplied ORIGINAL customer photograph. It is the sole
+authority for the building and scene. Any second image is a LIGHTING
+STYLE reference only; never copy its architecture, objects, or framing.
+
+Preserve the exact building geometry, proportions, rooflines, windows,
+doors, columns, signs, building numbers, clocks, landscaping, palm trees,
+flowerbeds, parking areas, vehicles, surroundings, and camera angle.
+Do not redesign, repair, add, remove, move, or invent architectural
+elements. Do not invent obscured roofline sections or alter text.
+
+Use the shared installation plan to illuminate EVERY eligible visible
+eave, gable underside, overhang and canopy, including left and right
+sections. Do not light roof ridges, vertical corners, or window frames
+unless explicitly specified in the installation plan.
+
+Install realistic Govee Permanent Outdoor Lights Pro-style concealed
+fixtures underneath the rooflines. Each fixture casts a distinct,
+downward-facing curved scalloped wall-wash cone, overlapping its
+neighbors. Even spacing must follow perspective and the building's
+surfaces. Scallops, NOT glowing strips, hanging bulbs, isolated
+spotlights, visible wiring, or exposed LED strips.
+
+PALETTE: {server-controlled preset}. Rainbow sequence: warm white,
+yellow, pink, magenta, purple, blue, cyan, turquoise, green, with
+smooth transitions. Keep moderate brightness and restrained saturation.
+Respect occlusions; light must not pass through trees, columns or walls.
+Use soft surface illumination, gentle shadows and subtle reflections.
+Do not add wet pavement, stars, decorations, unrelated lights or objects.
+
+DAY VARIANT: preserve the original daylight atmosphere if present;
+if the source is nighttime, use natural daylight without changing
+geometry. Fixtures remain on, but their wall-wash is realistically
+subtle under ambient daylight, not a neon nighttime glow.
+
+NIGHT VARIANT: use a natural deep-blue nighttime sky and balanced
+exposure. Keep architectural details visible. Lighting should look
+like a professional nighttime architectural photograph of the SAME
+building. No excessive neon glow, oversaturation, harsh halos,
+unrealistic shine, added text, or watermarks.
+
+Apply ONLY the requested variant's atmosphere instruction.</code></pre>
+    <h3>7 · Progress, resilience, privacy</h3><p>The browser measures upload progress (0–10%). Server status advances the estimated ring: queued 12%, analyzing 20%, generating 35% (65% when one output exists), validating 90%, pair complete 100%. There is no timer that fabricates completion. Elapsed time is real. Polling reconnects through the anonymous session; changing tabs or refreshing must not consume a request. Provide a real deletion/expiry task, authenticated asset proxy, bounded ZIP downloads, monitoring, and a published retention policy.</p>
+    <h3>8 · Acceptance checks before launch</h3><ul><li>Day/night pairs preserve framing and show scallops, not strips, across representative houses and commercial buildings.</li><li>Two completed pairs block a third on the server, including concurrent tabs and direct API requests.</li><li>Refresh during upload/inference, missing output, timeout, cookie expiry, denied consent, and download errors behave safely.</li><li>No provider key in HTML, network responses, analytics, or logs. No other visitor can read job IDs or assets.</li><li>Mobile, keyboard, screen-reader status updates, reduced motion, download ZIP, and embedding-cookie behavior are tested.</li><li>Benchmark cost and latency before promising delivery times. A pair involves two paid image edits plus any analysis/checks.</li></ul><p>References: <a href="https://developers.openai.com/api/docs/guides/image-generation" target="_blank" rel="noopener noreferrer">OpenAI image-generation guide</a> · <a href="https://developers.openai.com/api/docs/models/gpt-image-1.5" target="_blank" rel="noopener noreferrer">GPT Image 1.5</a>. This requested model is a previous-generation model; benchmark alternatives before claiming best-in-market quality.</p>
+  </div></dialog>
+
+  <script>
+    'use strict';
+    (() => {
+      const $ = id => document.getElementById(id);
+      const $$ = selector => [...document.querySelectorAll(selector)];
+      $('how-dialog').querySelector('.dialog-body').innerHTML = '<h3>01 · Upload one photo</h3><p>Choose a clear photo showing the complete roofline. Daytime photos are welcome.</p><h3>02 · Generate the night view</h3><p>Click Generate to create one nighttime image with multicolor lighting. The original remains available for comparison. Each generation attempt can incur provider charges.</p><h3>03 · Compare and download</h3><p>Switch between the original and night view, use the comparison slider, and download your preview. AI can change architectural details; inspect the result.</p>';
+      const assurance = document.querySelectorAll('.reassurance article');
+      assurance[2].querySelector('h3').textContent = 'Original and night view';
+      assurance[2].querySelector('p').textContent = 'Compare your nighttime preview with the original, then download it.';
+      $('results-heading').textContent = 'Your night preview.';
+      $('results-heading').nextElementSibling.textContent = 'Compare your preview with the original, then download it.';
+      $('setup-dialog').querySelector('.dialog-body').innerHTML = '<h3>Local testing</h3><p>Follow <code>SETUP.md</code> to configure the Vercel AI Gateway key and start the local server. Each generation attempts one paid night image edit. The original is shown without another AI call.</p><p>Photos, results and test allowances are stored in memory and disappear when the server restarts. This backend is for local testing only and must be replaced before public deployment. Do not put API keys in HTML.</p><h3>Accuracy</h3><p>AI results may change architectural details or omit lighting. Inspect results before use.</p>';
+      const ACTIVE = new Set(['queued','analyzing','generating','validating']);
+      const TERMINAL = new Set(['completed','partial','failed','cancelled']);
+      const MAX_BYTES = 10 * 1024 * 1024;
+      const MAX_PIXELS = 40_000_000;
+      const state = { connected:false, csrf:'', quota:null, file:null, sourceUrl:null, jobs:[], selectedId:null, selectedVariant:'night', view:'original', sampleView:'night', busy:false, preparing:false, downloading:false, comparing:false, pollTimer:null, pollFailures:0, startedAt:0, elapsedTimer:null, percent:0, originalUrls:new Map(), sessionEpoch:0, uploadEpoch:0, submitting:false };
+      const imageView = { requestedUrl:null, epoch:0, animation:null };
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let apiBase;
+      try {
+        apiBase = new URL(document.querySelector('meta[name="govee-api-base"]').content, location.href);
+        if (apiBase.origin !== location.origin || !/^https?:$/.test(apiBase.protocol) || apiBase.search || apiBase.hash) throw new Error();
+        apiBase = apiBase.pathname.replace(/\/$/,'');
+      } catch { apiBase = '/api/govee'; }
+
+      // All trusted asset URLs are owner-authorized and proxied by the same API.
+      function assetUrl(value) {
+        if (typeof value !== 'string' || !value) return null;
+        try {
+          const u = new URL(value, location.href);
+          return u.origin === location.origin && u.pathname.startsWith(apiBase + '/assets/') && !u.username && !u.password ? u.href : null;
+        } catch { return null; }
+      }
+      function currentJob() { return state.jobs.find(job => job.id === state.selectedId); }
+      function resultJob() { return currentJob() || state.jobs.at(-1); }
+      function output(job, variant) { return job?.outputs.find(item => item.variant === variant); }
+      function originalUrl(job) { return job?.originalUrl || state.originalUrls.get(job?.id) || null; }
+      function activeJob() { return state.jobs.find(job => ACTIVE.has(job.status)); }
+      function announce(message) { $('live-status').textContent = message; }
+      function showError(message) { $('error-message').textContent = message; $('error-notice').hidden = false; }
+      function clearError() { $('error-notice').hidden = true; }
+      function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { $('toast').hidden = true; },5500); }
+      function setConnection(message, retry = false) { $('connection-message').textContent = message; $('connection-notice').hidden = !message; $('reconnect').hidden = !retry; }
+      function uid() {
+        if (crypto.randomUUID) return crypto.randomUUID();
+        return Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2,'0')).join('');
+      }
+
+      function readQuota(q) {
+        const keys = ['requestLimit','imageLimit','requestsUsed','requestsReserved','imagesUsed','imagesReserved'];
+        if (!q || keys.some(k => !Number.isSafeInteger(q[k]) || q[k] < 0) || q.requestLimit < 1 || q.imageLimit < 1 || q.requestsUsed + q.requestsReserved > q.requestLimit || q.imagesUsed + q.imagesReserved > q.imageLimit) throw new Error('The server returned an invalid allowance. Please reconnect.');
+        return Object.fromEntries(keys.map(k => [k,q[k]]));
+      }
+      function readJob(j) {
+        if (!j || typeof j.id !== 'string' || !/^[\w-]{1,128}$/.test(j.id) || ![...ACTIVE,...TERMINAL].includes(j.status) || !Array.isArray(j.outputs)) throw new Error('The server returned an invalid generation job.');
+        const seen = new Set();
+        const outputs = j.outputs.map(item => {
+          const url = assetUrl(item?.url);
+          if (!item || !['day','night'].includes(item.variant) || seen.has(item.variant) || !url) throw new Error('The server returned an invalid preview image.');
+          seen.add(item.variant); return { variant:item.variant, url };
+        });
+        if (j.status === 'completed' && !seen.has('night')) throw new Error('The completed job is missing its nighttime image. Please reconnect.');
+        return { id:j.id, status:j.status, createdAt:typeof j.createdAt === 'string' ? j.createdAt : '', originalUrl:assetUrl(j.originalUrl), outputs, canRetry:j.canRetry === true, errorMessage:typeof j.errorMessage === 'string' ? j.errorMessage.slice(0,1000) : '' };
+      }
+      function acceptPayload(data) {
+        const quota = readQuota(data.quota);
+        const job = readJob(data.job);
+        state.quota = quota;
+        const index = state.jobs.findIndex(j => j.id === job.id);
+        if (index < 0) state.jobs.push(job); else state.jobs[index] = job;
+        return job;
+      }
+      function quotaRemaining() { return state.quota ? Math.max(0,state.quota.requestLimit - state.quota.requestsUsed - state.quota.requestsReserved) : 0; }
+      function renderQuota() {
+        const q = state.quota;
+        if (!q) { $('quota-title').textContent = state.connected ? 'Checking allowance' : 'Not connected'; return; }
+        const remaining = quotaRemaining();
+        $('quota-title').textContent = remaining ? `${remaining} request${remaining === 1 ? '' : 's'} left` : q.requestsReserved ? 'Pair in progress' : 'Allowance used';
+        $('quota-count').textContent = `${q.requestsUsed} / ${q.requestLimit} night images used today`;
+        $('quota-detail').textContent = q.requestsReserved || q.imagesReserved ? 'Nighttime image processing.' : 'Resets at midnight UTC; local server restarts also reset the count.';
+        for (let n = 1; n <= 2; n++) { const bar = $('quota-bar-' + n); const fraction = n / 2; bar.classList.toggle('used', q.requestsUsed / q.requestLimit >= fraction); bar.classList.toggle('reserved', q.requestsReserved > 0 && q.requestsUsed / q.requestLimit < fraction && (q.requestsUsed + q.requestsReserved) / q.requestLimit >= fraction); }
+        $('limit-note').hidden = remaining > 0 || !!activeJob() || !!q.requestsReserved;
+      }
+      function renderControls() {
+        const locked = state.busy || state.preparing || !!activeJob();
+        const canGenerate = state.connected && state.file && quotaRemaining() > 0 && !locked;
+        $('generate').disabled = !canGenerate;
+        $('generate-label').textContent = state.preparing ? 'Preparing photo…' : locked ? 'Your image is processing…' : quotaRemaining() === 0 && state.quota ? 'Daily limit reached' : 'Generate night view';
+        $('dropzone').disabled = locked;
+        $('remove-photo').disabled = locked;
+        $('photo-input').disabled = locked;
+        $('stop-generation').hidden = !activeJob();
+        $('stop-generation').disabled = state.submitting;
+        $$('input[name="palette"]').forEach(el => { el.disabled = locked; });
+        $('generate-hint').textContent = !state.connected ? 'Secure generation service must be connected first.' : locked ? 'Keep this page open, or return in this browser.' : !state.file ? 'Upload one photo to get started · no sign-up' : quotaRemaining() ? 'Uses 1 request · creates 1 night image' : 'Your existing previews remain available to download.';
+        renderQuota();
+      }
+      function setProgress(percent, heading, detail) {
+        state.percent = Math.min(100,Math.max(state.percent,percent));
+        $('progressbar').setAttribute('aria-label',`${heading}. Completion time is unknown.`);
+        if ($('progress-heading').textContent !== heading) announce(heading);
+        $('progress-heading').textContent = heading;
+        $('progress-detail').textContent = detail;
+      }
+      function tickElapsed() {
+        const seconds = Math.max(0,Math.floor((Date.now()-state.startedAt)/1000));
+        $('elapsed').textContent = `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')} elapsed${seconds >= 120 ? ' · Still working; AI edits can take several minutes.' : ''}`;
+      }
+      function startProgress(createdAt) {
+        state.busy = true; state.percent = 0;
+        const started = Date.parse(createdAt);
+        state.startedAt = Number.isFinite(started) ? Math.min(Date.now(),started) : Date.now();
+        clearInterval(state.elapsedTimer); state.elapsedTimer = setInterval(tickElapsed,1000); tickElapsed();
+        $('progress-overlay').hidden = false;
+        $('viewer-body').setAttribute('aria-busy','true');
+        renderControls();
+      }
+      function stopProgress() {
+        clearInterval(state.elapsedTimer); state.elapsedTimer = null; state.busy = false;
+        $('progress-overlay').hidden = true; $('viewer-body').setAttribute('aria-busy','false'); renderControls();
+      }
+      function progressFor(job) {
+        const map = {
+          queued:[12,'Your photo is in the queue','Your request is reserved. No need to click Generate again.'],
+          analyzing:[20,'Preparing your original photo','Checking the source image and preparing the shared roofline-lighting instructions.'],
+          generating:[35,'Creating your nighttime preview','The AI is editing your photo. Processing time varies; please keep this page open.'],
+          validating:[job.outputs.length ? 90 : 55,'Checking the generated image file','Checking image integrity and framing. Please inspect lighting coverage and architecture in the final previews.'],
+          completed:[100,'Your night view is ready','Compare with your original and download.'],
+          partial:[state.percent,'One look needs another try','The completed image is safe. Retry only the missing version.'],
+          failed:[state.percent,'Generation failed','Please check the error and try again if needed.'],
+          cancelled:[state.percent,'Generation stopped','The provider may still charge for the request.']
+        };
+        setProgress(...map[job.status]);
+      }
+
+      function showSample(visible) {
+        // SVG does not reflect the HTML `hidden` property in every browser.
+        ['sample-scene','sample-caption','scene-legend','scene-bottom','scene-source'].forEach(id => { $(id).toggleAttribute('hidden',!visible); });
+      }
+      function finishReveal() {
+        imageView.animation?.cancel(); imageView.animation = null;
+        $('outgoing-image').hidden = true; $('outgoing-image').removeAttribute('src');
+        $('viewer-body').classList.remove('is-revealing');
+      }
+      async function displayImage(url) {
+        if (imageView.requestedUrl === url && (url || $('main-image').hidden)) return;
+        imageView.requestedUrl = url;
+        const epoch = ++imageView.epoch;
+        const main = $('main-image'), previous = $('outgoing-image');
+        if (!url) {
+          finishReveal(); main.hidden = true; main.removeAttribute('src'); showSample(true); return;
+        }
+        try {
+          // Decode offscreen before replacing the visible image: no blank frame or blurry placeholder.
+          const next = new Image(); next.src = url; await next.decode();
+          if (epoch !== imageView.epoch) return;
+          finishReveal();
+          const canReveal = !main.hidden && main.getAttribute('src') !== url && !state.comparing && !reducedMotion.matches && typeof main.animate === 'function';
+          if (canReveal) { previous.src = main.src; previous.hidden = false; }
+          main.src = url; main.hidden = false; showSample(false);
+          if (canReveal) {
+            const origin = state.view === 'day' ? '14% 14%' : '86% 14%';
+            $('viewer-body').classList.add('is-revealing');
+            const animation = main.animate([
+              { clipPath:`circle(0% at ${origin})` },
+              { clipPath:`circle(150% at ${origin})` }
+            ],{ duration:1100,easing:'cubic-bezier(.22,1,.36,1)' });
+            imageView.animation = animation;
+            animation.finished.then(() => { if (imageView.animation === animation) finishReveal(); }).catch(() => {});
+          }
+        } catch {
+          if (epoch !== imageView.epoch) return;
+          imageView.requestedUrl = null;
+          showError('This preview image could not be loaded. Your previous view is still available. Reconnect to refresh access, then try again.');
+        }
+      }
+      reducedMotion.addEventListener('change',() => { if (reducedMotion.matches) finishReveal(); });
+
+      function renderViewer() {
+        const job = currentJob();
+        const source = job ? originalUrl(job) : state.sourceUrl;
+        const selected = job && output(job,state.view);
+        const url = state.view === 'original' ? source : selected?.url;
+        const hasImage = !!url;
+        const demo = !source && !job;
+        const period = demo ? state.sampleView : state.view;
+        document.querySelector('.viewer').dataset.period = period;
+        document.querySelector('.switcher').style.setProperty('--view-index',String(period === 'original' ? 0 : 1));
+        $('period-badge').hidden = period === 'original';
+        $('period-name').textContent = period === 'day' ? 'Daylight' : 'After dark';
+        $('period-detail').textContent = demo ? period === 'day' ? 'Subtle by design' : 'Let your home glow' : 'Your lighting preview';
+        $('sample-scene').setAttribute('aria-label',`Illustrated example of the same house ${period === 'day' ? 'in clear daylight with subtle roofline lighting' : 'at night with colorful scalloped roofline lighting'}`);
+        $('scene-bottom').querySelector('h3').textContent = period === 'day' ? 'Beautiful by day. Ready for the night.' : 'When the sun sets, the magic begins.';
+        $('scene-bottom').querySelector('p').textContent = 'Soft, colorful scallops. Upload your own home to create a nighttime preview.';
+        $('toolbar-text').querySelector('span').textContent = demo ? 'Preview your home after dark' : 'Compare your original and night preview.';
+        displayImage(url || null);
+        $('main-image').alt = state.view === 'original' ? 'Original customer house photograph' : `${state.view === 'day' ? 'Daytime' : 'Nighttime'} lighting preview of your house`;
+        $('preview-note').hidden = !hasImage || state.view !== 'original';
+        $('viewer-title').classList.toggle('live',hasImage);
+        $('viewer-heading').textContent = hasImage ? state.view === 'original' ? 'Your original photo' : `${state.view === 'day' ? 'Daytime' : 'Nighttime'} lighting preview` : 'Your lighting studio';
+        $('viewer-tag').textContent = job ? `PREVIEW SET ${state.jobs.indexOf(job)+1}` : demo ? 'ILLUSTRATED SAMPLE' : 'NIGHT PREVIEW';
+        $$('[data-view]').forEach(button => {
+          const view = button.dataset.view;
+          button.disabled = state.busy || (demo ? view === 'original' : view === 'original' ? !source : !output(job,view));
+          button.setAttribute('aria-pressed',String(demo ? state.sampleView === view : hasImage && state.view === view));
+        });
+        const comparing = state.comparing && !!source && !!selected;
+        ['compare-layer','compare-line','before-label','after-label','compare-control'].forEach(id => { $(id).hidden = !comparing; });
+        if (comparing) { finishReveal(); $('compare-image').src = source; updateCompare(); }
+      }
+      function updateCompare() {
+        const value = Number($('compare-range').value);
+        $('compare-layer').style.clipPath = `inset(0 ${100-value}% 0 0)`;
+        $('compare-line').style.left = value+'%';
+      }
+      function renderResults() {
+        const job = resultJob();
+        $('results').hidden = !job;
+        if (!job) return;
+        const select = $('job-select');
+        select.replaceChildren(...state.jobs.map((j,index) => { const option = document.createElement('option'); option.value=j.id; option.textContent=`Set ${index+1} · ${j.outputs.length}/1 ready`; return option; }));
+        select.value = job.id; select.disabled = state.busy;
+        for (const variant of ['day','night']) {
+          const item = output(job,variant), image = $(variant+'-result'), button = document.querySelector(`[data-result="${variant}"]`);
+          image.hidden = !item; $(variant+'-placeholder').hidden = !!item;
+          $(variant+'-placeholder').textContent = job.status === 'cancelled' ? 'Generation stopped' : job.status === 'failed' ? 'Generation failed' : job.status === 'partial' ? 'This version needs recovery' : 'Preview pending';
+          if (item && image.getAttribute('src') !== item.url) image.src = item.url;
+          if (!item) image.removeAttribute('src');
+          const chosen = !!item && state.selectedVariant === variant;
+          $(variant+'-card').classList.toggle('selected',chosen); button.setAttribute('aria-pressed',String(chosen)); button.disabled=!item || state.busy;
+          $(variant+'-choice').textContent = chosen ? '✓ Selected' : 'Select this look';
+        }
+        const chosen = output(job,state.selectedVariant);
+        $('download-selected').disabled = !chosen || state.downloading;
+        $('download-label').textContent = state.downloading ? 'Preparing download…' : chosen ? `Download ${state.selectedVariant === 'day' ? 'daytime' : 'nighttime'} (.png)` : 'Select a ready image';
+        $('download-both').disabled = job.outputs.length !== 2 || state.downloading;
+        $('compare-button').disabled = !chosen || !originalUrl(job) || state.busy;
+        $('partial-notice').hidden = job.status !== 'partial';
+        $('retry-missing').hidden = !job.canRetry || !['partial','failed'].includes(job.status);
+        $('retry-missing').disabled = state.busy || !state.connected;
+      }
+      function render() { renderControls(); renderResults(); renderViewer(); }
+
+      async function api(path, options = {}) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(),20000);
+        try {
+          const response = await fetch(apiBase+path,{ ...options,credentials:'same-origin',cache:'no-store',redirect:'error',headers:{Accept:'application/json',...options.headers},signal:controller.signal });
+          if (!(response.headers.get('content-type') || '').includes('application/json')) throw new Error('The generation API is not configured at '+apiBase+'. Open Integration & build plan for setup.');
+          const data = await response.json();
+          if (!response.ok) { const error = new Error(data?.error?.message || `Service request failed (${response.status}).`); error.status=response.status; throw error; }
+          return data;
+        } catch(error) {
+          if (error.name === 'AbortError') throw new Error('The service response timed out. Reconnect to check the existing request; do not submit it again.');
+          throw error;
+        } finally { clearTimeout(timer); }
+      }
+      async function connect() {
+        if (state.submitting) return;
+        const epoch = ++state.sessionEpoch;
+        clearTimeout(state.pollTimer);
+        $('reconnect').disabled=true;
+        setConnection('Checking your browser allowance and recovering any existing work…');
+        state.connected=false; renderControls();
+        if (location.protocol === 'file:') {
+          setConnection('Local interface preview. Uploads stay on this device until a secure backend is connected. Open Integration & build plan to enable real AI generation.',true);
+          $('reconnect').disabled=false; renderControls(); return;
+        }
+        try {
+          const data = await api('/session');
+          if (epoch !== state.sessionEpoch) return;
+          const quota = readQuota(data.quota);
+          if (typeof data.csrfToken !== 'string' || !data.csrfToken || !Array.isArray(data.jobs)) throw new Error('The service returned an invalid visitor session.');
+          const jobs = data.jobs.map(readJob);
+          if (new Set(jobs.map(j=>j.id)).size !== jobs.length) throw new Error('The service returned duplicate jobs.');
+          state.csrf=data.csrfToken; state.quota=quota; state.jobs=jobs; state.connected=data.generationEnabled !== false; state.pollFailures=0;
+          const active=activeJob();
+          if (active) state.selectedId=active.id;
+          else if (!state.jobs.some(j=>j.id === state.selectedId)) state.selectedId=jobs.at(-1)?.id || null;
+          const job=currentJob();
+          if (job && !output(job,state.selectedVariant)) state.selectedVariant=job.outputs[0]?.variant || 'night';
+          state.view=job?.outputs.length ? state.selectedVariant : 'original'; state.comparing=false;
+          setConnection(state.connected ? '' : typeof data.serviceMessage === 'string' ? data.serviceMessage : 'Configure the backend API key, restart the server, and reconnect.',!state.connected);
+          if (active) { startProgress(active.createdAt); progressFor(active); schedulePoll(active.id); }
+          else stopProgress();
+          render();
+        } catch(error) {
+          if (epoch !== state.sessionEpoch) return;
+          stopProgress();
+          setConnection(error.message || 'Generation service unavailable. You can preview a local photo, but AI generation requires the backend.',true);
+          render();
+        } finally { $('reconnect').disabled=false; }
+      }
+      function schedulePoll(id, delay = 2500) { clearTimeout(state.pollTimer); state.pollTimer=setTimeout(()=>pollJob(id),delay); }
+      async function pollJob(id) {
+        const epoch = state.sessionEpoch;
+        try {
+          const data=await api('/jobs/'+encodeURIComponent(id));
+          if (epoch !== state.sessionEpoch) return;
+          const job=acceptPayload(data);
+          state.pollFailures=0; state.connected=true; setConnection('');
+          if (state.selectedId === id) progressFor(job);
+          if (ACTIVE.has(job.status)) { render(); schedulePoll(id); return; }
+          if (job.status === 'completed') {
+            await new Promise(resolve=>setTimeout(resolve,600));
+            if (epoch !== state.sessionEpoch) return;
+          }
+          if (!output(job,state.selectedVariant)) state.selectedVariant=job.outputs[0]?.variant || 'night';
+          state.view=job.outputs.length ? state.selectedVariant : 'original';
+          stopProgress(); render();
+          if (job.status === 'completed') { announce('Your nighttime mockup is ready.'); toast('Your night view is ready.'); $('results-heading').setAttribute('tabindex','-1'); $('results-heading').focus({preventScroll:true}); }
+          else if (job.status === 'cancelled') { announce('Generation stopped.'); toast('Generation stopped. The provider may still charge for the request.'); }
+          else if (job.status === 'partial') showError(job.errorMessage || 'One image is ready. Recover the missing image below without using another request.');
+          else showError(job.errorMessage || 'This generation failed. Your allowance has been updated by the service; you may retry if offered below.');
+        } catch(error) {
+          if (epoch !== state.sessionEpoch) return;
+          state.pollFailures++;
+          setConnection('Connection interrupted. Your existing request may still be processing; no new request has been sent.',state.pollFailures >= 3);
+          if (state.pollFailures < 3) schedulePoll(id,5000*state.pollFailures);
+          else { state.connected=false; stopProgress(); render(); announce('Connection interrupted. Use Reconnect to recover your existing request.'); }
+        }
+      }
+
+      async function verifyImage(file) {
+        if (!file || file.size === 0) throw new Error('Choose a non-empty house photo.');
+        if (file.size > MAX_BYTES) throw new Error('Your photo is larger than 10 MB. Please export a smaller JPG, PNG, or WebP.');
+        const b=new Uint8Array(await file.slice(0,16).arrayBuffer());
+        const jpg=b[0]===255 && b[1]===216 && b[2]===255;
+        const png=[137,80,78,71,13,10,26,10].every((v,i)=>b[i]===v);
+        const webp=String.fromCharCode(...b.slice(0,4))==='RIFF' && String.fromCharCode(...b.slice(8,12))==='WEBP';
+        if (!jpg && !png && !webp) throw new Error('Please upload an actual JPG, PNG, or WebP image. HEIC, SVG, and GIF are not supported.');
+      }
+      async function preparePhoto(file) {
+        if (state.busy || activeJob() || state.preparing) return;
+        const epoch=++state.uploadEpoch;
+        clearError(); state.preparing=true; renderControls();
+        let temporaryUrl;
+        try {
+          await verifyImage(file);
+          temporaryUrl=URL.createObjectURL(file);
+          const image=new Image(); image.src=temporaryUrl; await image.decode();
+          const {naturalWidth:w,naturalHeight:h}=image;
+          if (!w || !h || w*h>MAX_PIXELS) throw new Error('Please use a photo under 40 megapixels.');
+          if (Math.min(w,h)<320) throw new Error('This photo is too small. Please use an image at least 320 pixels on each side.');
+          if (w/h>3 || h/w>3) throw new Error('Please use a standard photo rather than a panorama; keep the complete house in frame.');
+          // Re-encoding removes metadata; never resize by changing the aspect ratio.
+          const scale=Math.min(1,4096/Math.max(w,h)), canvas=document.createElement('canvas');
+          canvas.width=Math.round(w*scale); canvas.height=Math.round(h*scale);
+          const context=canvas.getContext('2d');
+          if (!context) throw new Error('Your browser could not prepare the photo. Try a current browser.');
+          context.fillStyle='#ffffff'; context.fillRect(0,0,canvas.width,canvas.height); context.drawImage(image,0,0,canvas.width,canvas.height);
+          const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.94));
+          if (!blob || blob.size>MAX_BYTES) throw new Error('The prepared image is too large. Please upload a smaller photo.');
+          if (epoch!==state.uploadEpoch) return;
+          if (state.sourceUrl && ![...state.originalUrls.values()].includes(state.sourceUrl)) URL.revokeObjectURL(state.sourceUrl);
+          state.file=new File([blob],'house-photo.jpg',{type:'image/jpeg'}); state.sourceUrl=URL.createObjectURL(blob);
+          state.selectedId=null; state.view='original'; state.comparing=false;
+          $('photo-thumbnail').src=state.sourceUrl; $('photo-filename').textContent=file.name; $('photo-dimensions').textContent=`${canvas.width} × ${canvas.height} · ${(blob.size/1024/1024).toFixed(1)} MB`;
+          $('photo-card').hidden=false; $('dropzone').hidden=true;
+          $('upload-hint').textContent='Photo ready. Metadata removed; your photo has not been sent yet.';
+          announce('Photo ready. Generate your nighttime preview.');
+        } catch(error) { showError(error.message || 'This photo could not be decoded. Please choose another.'); }
+        finally { if (temporaryUrl) URL.revokeObjectURL(temporaryUrl); state.preparing=false; $('photo-input').value=''; render(); }
+      }
+
+      function uploadJob(form,key) {
+        return new Promise((resolve,reject)=>{
+          const xhr=new XMLHttpRequest(); xhr.open('POST',apiBase+'/jobs'); xhr.responseType='json'; xhr.timeout=90000;
+          xhr.setRequestHeader('Accept','application/json'); xhr.setRequestHeader('X-CSRF-Token',state.csrf); xhr.setRequestHeader('Idempotency-Key',key);
+          xhr.upload.onprogress=e=>{ if(e.lengthComputable) setProgress(Math.min(10,e.loaded/e.total*10),'Uploading your photo','Preparing a secure, metadata-cleaned photo for your day & night pair.'); };
+          xhr.onload=()=>{
+            if (xhr.status>=200 && xhr.status<300 && xhr.response) resolve(xhr.response);
+            else reject(new Error(xhr.response?.error?.message || `Upload response could not be confirmed (${xhr.status}). Reconnect to recover any accepted request.`));
+          };
+          xhr.onerror=()=>reject(new Error('Upload connection lost. Reconnect to check whether the server accepted your request.'));
+          xhr.ontimeout=()=>reject(new Error('Upload response timed out. Reconnect to recover any accepted request; do not submit again.'));
+          xhr.send(form);
+        });
+      }
+      async function generate() {
+        if ($('generate').disabled || state.submitting) return;
+        clearError(); state.comparing=false; state.submitting=true;
+        startProgress(); setProgress(0,'Preparing your photo','One request will create one nighttime image.'); render();
+        const form=new FormData(); form.append('image',state.file); form.append('palette','rainbow');
+        try {
+          const data=await uploadJob(form,uid());
+          const job=acceptPayload(data);
+          state.originalUrls.set(job.id,state.sourceUrl); state.selectedId=job.id; state.selectedVariant='night';
+          $('upload-hint').textContent='Photo submitted to the image-processing service.';
+          progressFor(job); render();
+          // Poll even an immediately terminal response to reconcile server state.
+          schedulePoll(job.id,500);
+        } catch(error) {
+          showError(error.message); state.connected=false; stopProgress();
+          setConnection('Checking the existing request before allowing another submission…');
+        } finally { state.submitting=false; if (!state.connected) await connect(); }
+      }
+      async function retryMissing() {
+        const job=resultJob(); if (!job || !job.canRetry || state.busy || !state.connected || state.submitting) return;
+        state.selectedId=job.id;
+        clearError(); state.submitting=true; state.comparing=false; startProgress();
+        setProgress(12,'Recovering the missing look','The existing ready image is retained. This does not use a new request.');
+        try {
+          const data=await api('/jobs/'+encodeURIComponent(job.id)+'/retry',{method:'POST',headers:{'X-CSRF-Token':state.csrf,'Idempotency-Key':uid()}});
+          const updated=acceptPayload(data); progressFor(updated); render(); schedulePoll(updated.id,500);
+        } catch(error) { showError(error.message); state.connected=false; stopProgress(); }
+        finally { state.submitting=false; if (!state.connected) await connect(); }
+      }
+      async function stopGeneration() {
+        const job = activeJob();
+        if (!job || state.submitting || !window.confirm('Stop generation? The provider may already have processed this image, so a charge may still apply.')) return;
+        state.submitting = true;
+        clearTimeout(state.pollTimer);
+        ++state.sessionEpoch; // Ignore an older in-flight poll after cancellation.
+        renderControls();
+        try {
+          const data = await api('/jobs/' + encodeURIComponent(job.id) + '/cancel', { method:'POST', headers:{'X-CSRF-Token':state.csrf} });
+          const updated = acceptPayload(data);
+          state.view = updated.outputs.length ? updated.outputs[0].variant : 'original';
+          stopProgress(); render();
+          if (updated.status === 'cancelled') { announce('Generation stopped.'); toast('Generation stopped. The provider may still charge for the request.'); }
+          else if (updated.status === 'completed') { announce('Your preview finished before it could be stopped.'); toast('Your preview finished before it could be stopped.'); }
+          else showError(updated.errorMessage || 'Generation has already ended.');
+        } catch (error) {
+          stopProgress(); state.connected = false;
+          showError('Could not confirm cancellation. Reconnect to check the job before starting again.');
+          setConnection('Cancellation could not be confirmed. Reconnect to check the existing request.', true);
+        } finally { state.submitting = false; render(); }
+      }
+      async function download(variant) {
+        const job=resultJob(); if (!job || state.downloading || (variant==='both' ? job.outputs.length!==2 : !output(job,variant))) return;
+        state.downloading=true; renderResults();
+        const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),60000);
+        try {
+          const response=await fetch(`${apiBase}/jobs/${encodeURIComponent(job.id)}/download?variant=${variant}`,{credentials:'same-origin',cache:'no-store',redirect:'error',signal:controller.signal});
+          const type=(response.headers.get('content-type') || '').split(';')[0].trim();
+          if (!response.ok) throw new Error('Download is unavailable. Reconnect to refresh your session, then try again.');
+          if (variant==='both' ? !['application/zip','application/x-zip-compressed'].includes(type) : type!=='image/png') throw new Error('The service returned an unexpected download format.');
+          const length=Number(response.headers.get('content-length'));
+          if (length>80*1024*1024) throw new Error('The download exceeds the supported size.');
+          const blob=await response.blob();
+          if (!blob.size || blob.size>80*1024*1024) throw new Error('The download was empty or too large.');
+          const url=URL.createObjectURL(blob), link=document.createElement('a'); link.href=url; link.download=`afterglow-${job.id.slice(0,12)}-${variant}.${variant==='both' ? 'zip' : 'png'}`; document.body.append(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url),60000);
+          toast('Download started. Your preview allowance is unchanged.');
+        } catch(error) { showError(error.name==='AbortError' ? 'Download timed out. Please try again; downloads do not use requests.' : error.message); }
+        finally { clearTimeout(timer); state.downloading=false; renderResults(); }
+      }
+
+      function selectVariant(variant) {
+        const job=resultJob();
+        if (!output(job,variant)) return;
+        state.selectedId=job.id;
+        state.selectedVariant=variant; state.view=variant; state.comparing=false; render();
+      }
+      function drawIllustration() {
+        const ns='http://www.w3.org/2000/svg';
+        const colors=['#ffe3a1','#f3d870','#ed9bae','#e08dbd','#b897e7','#8ca4ee','#8ed5e9','#91d8c9','#b4db9b'];
+        const defs=$('sample-scene').querySelector('defs');
+        colors.forEach((color,i)=>{
+          const gradient=document.createElementNS(ns,'linearGradient'); gradient.id='sample-wash-'+i; gradient.setAttribute('x2','0'); gradient.setAttribute('y2','1');
+          for(const [offset,opacity] of [['0','.8'],['.65','.3'],['1','0']]) { const stop=document.createElementNS(ns,'stop'); stop.setAttribute('offset',offset); stop.setAttribute('stop-color',color); stop.setAttribute('stop-opacity',opacity); gradient.append(stop); }
+          defs.append(gradient);
+        });
+        let index=0;
+        const segments=[[164,348,325,202],[325,202,486,348],[480,307,606,181],[606,181,735,307],[472,372,821,372]];
+        for(const [x1,y1,x2,y2] of segments) {
+          const distance=Math.hypot(x2-x1,y2-y1), count=Math.max(1,Math.round(distance/23));
+          for(let i=0;i<=count;i++) {
+            const t=i/count,x=x1+(x2-x1)*t,y=y1+(y2-y1)*t,colorIndex=index++%colors.length;
+            const cone=document.createElementNS(ns,'path'); cone.setAttribute('d',`M${x} ${y+2} Q${x-10} ${y+21} ${x-24} ${y+66} Q${x} ${y+84} ${x+24} ${y+66} Q${x+10} ${y+21} ${x} ${y+2}Z`); cone.setAttribute('fill',`url(#sample-wash-${colorIndex})`); $('sample-cones').append(cone);
+            const point=document.createElementNS(ns,'circle'); point.setAttribute('cx',x); point.setAttribute('cy',y); point.setAttribute('r','2'); point.setAttribute('fill','#fff4ce'); $('sample-fixtures').append(point);
+          }
+        }
+      }
+
+      $('dropzone').addEventListener('click',()=>$('photo-input').click());
+      $('photo-input').addEventListener('change',event=>{ const file=event.target.files?.[0]; if(file) preparePhoto(file); });
+      for(const name of ['dragenter','dragover']) $('dropzone').addEventListener(name,event=>{ event.preventDefault(); if(!state.busy && !activeJob()) $('dropzone').classList.add('drag'); });
+      for(const name of ['dragleave','drop']) $('dropzone').addEventListener(name,event=>{ event.preventDefault(); $('dropzone').classList.remove('drag'); });
+      $('dropzone').addEventListener('drop',event=>{ const files=event.dataTransfer?.files; if(files?.length!==1) { showError('Please upload one house photo at a time.'); return; } preparePhoto(files[0]); });
+      window.addEventListener('dragover',event=>event.preventDefault());
+      window.addEventListener('drop',event=>event.preventDefault());
+      $('remove-photo').addEventListener('click',()=>{
+        if(state.busy || activeJob()) return;
+        if(state.sourceUrl && ![...state.originalUrls.values()].includes(state.sourceUrl)) URL.revokeObjectURL(state.sourceUrl);
+        state.file=null; state.sourceUrl=null; state.comparing=false; state.selectedId=null; state.view='original';
+        $('photo-thumbnail').removeAttribute('src'); $('photo-card').hidden=true; $('dropzone').hidden=false; $('upload-hint').textContent='A clear photo with the full roofline works best. Daytime photos are welcome.'; render();
+      });
+      $('generate').addEventListener('click',generate);
+      $('stop-generation').addEventListener('click',stopGeneration);
+      $('reconnect').addEventListener('click',connect);
+      $('dismiss-error').addEventListener('click',clearError);
+      $('retry-missing').addEventListener('click',retryMissing);
+      $('download-selected').addEventListener('click',()=>download(state.selectedVariant));
+      $('download-both').addEventListener('click',()=>download('both'));
+      $$('[data-result]').forEach(button=>button.addEventListener('click',()=>selectVariant(button.dataset.result)));
+      $$('[data-view]').forEach(button=>button.addEventListener('click',()=>{
+        if(button.disabled) return;
+        const view=button.dataset.view;
+        if(!currentJob() && !state.sourceUrl) {
+          if(state.sampleView===view) return;
+          state.sampleView=view; renderViewer();
+          announce(`${view==='day' ? 'Daytime' : 'Nighttime'} illustration. Upload your own photo to create a personal lighting preview.`);
+          return;
+        }
+        if(view!=='original') state.selectedVariant=view;
+        state.view=view; state.comparing=false; render();
+        announce(view==='original' ? 'Showing your original photo.' : `Showing your ${view==='day' ? 'daytime' : 'nighttime'} lighting preview.`);
+      }));
+      $('job-select').addEventListener('change',event=>{ state.selectedId=event.target.value; const job=currentJob(); if(!output(job,state.selectedVariant)) state.selectedVariant=job?.outputs[0]?.variant || 'night'; state.view=job?.outputs.length ? state.selectedVariant : 'original'; state.comparing=false; render(); });
+      $('compare-button').addEventListener('click',()=>{ const job=resultJob(); if(!job) return; state.selectedId=job.id; state.view=state.selectedVariant; state.comparing=true; renderViewer(); $('compare-range').focus(); });
+      $('compare-range').addEventListener('input',updateCompare);
+      $('close-compare').addEventListener('click',()=>{ state.comparing=false; renderViewer(); $('compare-button').focus(); });
+      $$('[data-open]').forEach(button=>button.addEventListener('click',event=>{ event.preventDefault(); $(button.dataset.open).showModal(); }));
+      $$('[data-close]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog').close()));
+      $$('dialog').forEach(dialog=>dialog.addEventListener('click',event=>{ if(event.target!==dialog) return; const rect=dialog.getBoundingClientRect(); if(event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top || event.clientY>rect.bottom) dialog.close(); }));
+      $('main-image').addEventListener('error',()=>{ if($('main-image').getAttribute('src')) showError('This preview image could not be loaded. Reconnect to refresh access to your retained results.'); });
+      window.addEventListener('online',()=>{ if(!state.connected && !state.submitting) connect(); });
+      document.addEventListener('visibilitychange',()=>{ if(!document.hidden && state.connected && activeJob() && !state.submitting) schedulePoll(activeJob().id,0); });
+      drawIllustration(); render(); connect();
+    })();
+  </script>
+</body>
+</html>
